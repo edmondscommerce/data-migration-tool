@@ -80,7 +80,7 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
     protected $structure = [
         MapInterface::TYPE_SOURCE => [
             'core_url_rewrite' => [
-                'url_rewrite_id' ,
+                'url_rewrite_id',
                 'store_id',
                 'id_path',
                 'request_path',
@@ -126,7 +126,8 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
         RecordFactory $factory,
         \Migration\Logger\Logger $logger,
         $stage
-    ) {
+    )
+    {
         parent::__construct($config);
         $this->source = $source;
         $this->destination = $destination;
@@ -150,7 +151,7 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
             $this->structure[MapInterface::TYPE_SOURCE][self::SOURCE],
             array_keys($this->source->getStructure(self::SOURCE)->getFields())
         );
-        $destinationFieldsDiff= array_diff(
+        $destinationFieldsDiff = array_diff(
             $this->structure[MapInterface::TYPE_DEST][self::DESTINATION],
             array_keys($this->destination->getStructure(self::DESTINATION)->getFields())
         );
@@ -310,7 +311,7 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
 
         $metadata = $this->doRecordSerialization($record)
             ? serialize(['category_id' => $record->getValue('category_id')])
-            : null ;
+            : null;
         $destRecord->setValue('metadata', $metadata);
 
         $destRecord->setValue('entity_id', $record->getValue('product_id') ?: $record->getValue('category_id'));
@@ -367,8 +368,7 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
         )->where(
             'cp.identifier NOT IN(?)',
             $this->getUrlRewriteRequestPathsSelect()
-        )->group(['request_path', 'cps.store_id']);
-
+        )->group(['cp.identifier', new \Zend_Db_Expr('IF(cps.store_id = 0, 1, cps.store_id)')]);
         return $select;
     }
 
