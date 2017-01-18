@@ -246,15 +246,47 @@ class Helper
      */
     public function clearIgnoredAttributes($sourceRecords)
     {
-        $ignoredAttributes = array_keys($this->readerAttributes->getGroup('ignore'));
+        $ignoredAttributes = $this->getAttributesGroupCodes('ignore');
         foreach ($sourceRecords as $attrNum => $sourceAttribute) {
-            if (
-                isset($sourceAttribute['attribute_code'])
-                    && (in_array($sourceAttribute['attribute_code'], $ignoredAttributes))
+            if (in_array($sourceAttribute['attribute_code'], array_keys($ignoredAttributes))
+                && in_array($sourceAttribute['entity_type_id'], $ignoredAttributes[$sourceAttribute['attribute_code']])
             ) {
                 unset($sourceRecords[$attrNum]);
             }
         }
         return $sourceRecords;
+    }
+
+    /**
+     * Retrieves attribute codes with types of $groupName group
+     *
+     * @param string $groupName
+     * @return array
+     */
+    public function getAttributesGroupCodes($groupName)
+    {
+        $entityTypesCodeToId = $this->getEntityTypesCodeToId();
+        $attributeCodes = $this->readerAttributes->getGroup($groupName);
+        foreach ($attributeCodes as $attributeCode => $attributeTypes) {
+            $attributeCodes[$attributeCode] = [];
+            foreach ($attributeTypes as $attributeType) {
+                if (array_key_exists($attributeType, $entityTypesCodeToId)) {
+                    $attributeCodes[$attributeCode][] = $entityTypesCodeToId[$attributeType];
+                }
+            }
+        }
+        return $attributeCodes;
+    }
+
+    /**
+     * @return array
+     */
+    private function getEntityTypesCodeToId()
+    {
+        /** @var \Magento\Framework\DB\Select $select */
+        $select = $this->source->getAdapter()->getSelect();
+        $select->from($this->source->addDocumentPrefix('eav_entity_type'), ['entity_type_code', 'entity_type_id']);
+        $entityTypeIds = $select->getAdapter()->fetchPairs($select);
+        return $entityTypeIds;
     }
 }

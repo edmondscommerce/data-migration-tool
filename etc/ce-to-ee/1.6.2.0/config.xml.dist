@@ -18,6 +18,9 @@
         </step>
     </steps>
     <steps mode="data">
+        <step title="Data Integrity Step">
+            <integrity>Migration\Step\DataIntegrity\Integrity</integrity>
+        </step>
         <step title="EAV Step">
             <integrity>Migration\Step\Eav\Integrity</integrity>
             <data>Migration\Step\Eav\Data</data>
@@ -69,7 +72,6 @@
             <volume>Migration\Step\SalesIncrement\Volume</volume>
         </step>
         <step title="PostProcessing Step">
-            <integrity>Migration\Step\PostProcessing\Integrity</integrity>
             <data>Migration\Step\PostProcessing\Data</data>
         </step>
     </steps>
@@ -116,6 +118,7 @@
         <order_grids_document_groups_file>etc/ce-to-ee/order-grids-document-groups.xml.dist</order_grids_document_groups_file>
         <map_document_groups>etc/ce-to-ee/map-document-groups.xml.dist</map_document_groups>
         <class_map>etc/ce-to-ee/class-map.xml.dist</class_map>
+        <tier_price_map_file>etc/ce-to-ee/1.6.2.0/map-tier-price.xml.dist</tier_price_map_file>
         <!--
         In case bulk_size=0 it will be auto-detected for every document.
         -->
@@ -134,6 +137,8 @@
         <upgrade_customer_password_hash>1</upgrade_customer_password_hash>
         <edition_migrate>ce-to-ee</edition_migrate>
         <edition_number>1.6.2.0</edition_number>
+        <init_statements_source>SET NAMES utf8;</init_statements_source>
+        <init_statements_destination>SET NAMES utf8;</init_statements_destination>
         <crypt_key />
     </options>
 </config>
