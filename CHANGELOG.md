@@ -1,3 +1,43 @@
+2.1.8
+=============
+* Added support for versions:
+
+   * Magento CE: 1.9.3.4, 2.1.8
+   * Magento EE: 1.14.3.4, 2.1.8
+
+* Fixed bugs:
+
+   * Volume checks were missing when migrating data to EE
+   * Delta did not work on archived sales order grid
+   * Urlrewrites added unwanted extra dot to url suffix
+   * [Issue #306](https://github.com/magento/data-migration-tool/issues/306): Tables prefix was not added to the table `customer_entity` which triggered error
+   * [Issue #279](https://github.com/magento/data-migration-tool/issues/279): No warnings appeared when delta tables could not be created 
+
+2.1.7
+=============
+* Added support for versions:
+
+   * Magento CE: 1.9.3.3, 2.1.7
+   * Magento EE: 1.14.3.3, 2.1.7
+
+* Fixed bugs:
+   * [Issue #283](https://github.com/magento/data-migration-tool/issues/283): Ignored attributes were not cleaned properly in the following extended attribute tables: `catalog_eav_attribute`, `customer_eav_attribute`
+   * [Issue #176](https://github.com/magento/data-migration-tool/issues/176): Ignored fields in the `map-eav.xml` file caused errors during migration if the table fields could not be NULL (set as NOT NULL)
+
+2.1.6
+=============
+* Added possibility to specify custom port for MySQL server connection
+* Added support for versions:
+
+   * Magento CE: 2.1.6
+   * Magento EE: 2.1.6
+
+* Fixed bugs:
+   * Unable to save Customer's custom attribute value if the attribute has been created after migration
+   * An error occurred during the TierPrice migration step if the product had both Tier and Group Prices and the quantity of a product in Tier Price was 1
+   * Issues [#207](https://github.com/magento/data-migration-tool/issues/207), [#264](https://github.com/magento/data-migration-tool/issues/264): Customer Segments with product attributes in conditions caused Store Front to be inoperative
+   * [Issue #212](https://github.com/magento/data-migration-tool/issues/212): When some system attributes had not been included in a product attribute set, they were checked and linked to such set instead of being added automatically. These system attributes are: category_ids, giftcard_type, price_type, shipment_type, sku_type, weight_type, swatch_image
+
 2.1.5
 =============
 * Updated copyright notice

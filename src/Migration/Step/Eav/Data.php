@@ -17,12 +17,15 @@ use Migration\ResourceModel\Record;
 use Migration\ResourceModel\Document;
 use Migration\ResourceModel\RecordFactory;
 use Migration\ResourceModel\Source;
+use Migration\Step\Eav\Model\IgnoredAttributes;
 
 /**
  * Class Data
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.NPathComplexity)
  * @codeCoverageIgnoreStart
  */
 class Data implements StageInterface, RollbackInterface
@@ -98,6 +101,11 @@ class Data implements StageInterface, RollbackInterface
     protected $initialData;
 
     /**
+     * @var IgnoredAttributes
+     */
+    protected $ignoredAttributes;
+
+    /**
      * @var ProgressBar\LogLevelProcessor
      */
     protected $progress;
@@ -123,6 +131,21 @@ class Data implements StageInterface, RollbackInterface
     ];
 
     /**
+     * Attributes will be added to attribute group if not exist
+     *
+     * @var array
+     */
+    private $attributesGroupToAdd = [
+        'category_ids' => 'product-details',
+        'price_type' => 'product-details',
+        'sku_type' => 'product-details',
+        'weight_type' => 'product-details',
+        'giftcard_type' => 'product-details',
+        'quantity_and_stock_status' => 'product-details',
+        'swatch_image' => 'image-management'
+    ];
+
+    /**
      * @param Source $source
      * @param Destination $destination
      * @param MapFactory $mapFactory
@@ -130,6 +153,7 @@ class Data implements StageInterface, RollbackInterface
      * @param Helper $helper
      * @param RecordFactory $factory
      * @param InitialData $initialData
+     * @param IgnoredAttributes $ignoredAttributes
      * @param ProgressBar\LogLevelProcessor $progress
      */
     public function __construct(
@@ -140,6 +164,7 @@ class Data implements StageInterface, RollbackInterface
         Helper $helper,
         RecordFactory $factory,
         InitialData $initialData,
+        IgnoredAttributes $ignoredAttributes,
         ProgressBar\LogLevelProcessor $progress
     ) {
         $this->source = $source;
@@ -149,6 +174,7 @@ class Data implements StageInterface, RollbackInterface
         $this->helper = $helper;
         $this->factory = $factory;
         $this->initialData = $initialData;
+        $this->ignoredAttributes = $ignoredAttributes;
         $this->progress = $progress;
     }
 
@@ -159,10 +185,9 @@ class Data implements StageInterface, RollbackInterface
     public function perform()
     {
         $this->progress->start($this->getIterationsCount());
-        $this->initialData->init();
         $this->migrateEntityTypes();
         $this->migrateAttributeSetsAndGroups();
-        $this->changeOldAttributeSetIdsInEntityTypes();
+        $this->changeOldAttributeSetIdsInEntityTypes(['customer', 'customer_address']);
         $this->migrateAttributes();
         $this->migrateAttributesExtended();
         $this->migrateEntityAttributes();
@@ -198,7 +223,7 @@ class Data implements StageInterface, RollbackInterface
                 $destinationRecordData = $destinationRecords[$mappingValue];
                 unset($destinationRecords[$mappingValue]);
             } else {
-                $destinationRecordData = array_fill_keys($destinationRecord->getFields(), null);
+                $destinationRecordData = $destinationRecord->getDataDefault();
             }
             $destinationRecord->setData($destinationRecordData);
             $this->helper->getRecordTransformer($sourceDocument, $destinationDocument)
@@ -347,9 +372,10 @@ class Data implements StageInterface, RollbackInterface
     /**
      * Change old default attribute set ids in entity types
      *
+     * @param array $exceptions
      * @return void
      */
-    protected function changeOldAttributeSetIdsInEntityTypes()
+    protected function changeOldAttributeSetIdsInEntityTypes(array $exceptions)
     {
         $documentName = 'eav_entity_type';
         $destinationDocument = $this->destination->getDocument(
@@ -358,7 +384,9 @@ class Data implements StageInterface, RollbackInterface
         $recordsToSave = $destinationDocument->getRecords();
         $entityTypesMigrated = $this->helper->getDestinationRecords($destinationDocument->getName());
         foreach ($entityTypesMigrated as $record) {
-            if (isset($this->defaultAttributeSetIds[$record['entity_type_id']])) {
+            if (isset($this->defaultAttributeSetIds[$record['entity_type_id']])
+                && !in_array($record['entity_type_code'], $exceptions)
+            ) {
                 $record['default_attribute_set_id'] =
                     $this->defaultAttributeSetIds[$record['entity_type_id']];
             }
@@ -388,7 +416,7 @@ class Data implements StageInterface, RollbackInterface
             $this->map->getDocumentMap($sourceDocName, MapInterface::TYPE_SOURCE)
         );
         $this->destination->backupDocument($destinationDocument->getName());
-        $sourceRecords = $this->helper->clearIgnoredAttributes($this->initialData->getAttributes('source'));
+        $sourceRecords = $this->ignoredAttributes->clearIgnoredAttributes($this->initialData->getAttributes('source'));
         $destinationRecords = $this->initialData->getAttributes('dest');
 
         $recordsToSave = $destinationDocument->getRecords();
@@ -408,7 +436,7 @@ class Data implements StageInterface, RollbackInterface
                 $destinationRecordData = $destinationRecords[$mappedKey];
                 unset($destinationRecords[$mappedKey]);
             } else {
-                $destinationRecordData = array_fill_keys($destinationRecord->getFields(), null);
+                $destinationRecordData = $destinationRecord->getDataDefault();
             }
             $destinationRecord->setData($destinationRecordData);
 
@@ -478,6 +506,7 @@ class Data implements StageInterface, RollbackInterface
 
         $recordsToSave = $this->processDesignEntityAttributes($recordsToSave);
         $recordsToSave = $this->moveProductAttributes($recordsToSave);
+        $recordsToSave = $this->addLackingAttributesToCustomerAttributeSet($recordsToSave);
 
         $this->destination->clearDocument($destinationDocument->getName());
         $this->saveRecords($destinationDocument, $recordsToSave);
@@ -493,7 +522,9 @@ class Data implements StageInterface, RollbackInterface
     {
         $this->moveProductAttributeToGroup($recordsToSave, 'price', 'product-details');
         $this->moveProductAttributeToGroup($recordsToSave, 'shipment_type', 'bundle-items');
-        $this->addProductAttributeToGroup($recordsToSave, 'quantity_and_stock_status', 'product-details');
+        foreach ($this->attributesGroupToAdd as $attributeCode => $attributeGroupCode) {
+            $this->addProductAttributeToGroup($recordsToSave, $attributeCode, $attributeGroupCode);
+        }
         return $recordsToSave;
     }
 
@@ -548,37 +579,37 @@ class Data implements StageInterface, RollbackInterface
     {
         $productEntityType
             = $this->helper->getSourceRecords('eav_entity_type', ['entity_type_code'])['catalog_product'];
+        $productEntityTypeId = $productEntityType['entity_type_id'];
         $attributes = $this->helper->getDestinationRecords('eav_attribute', ['attribute_id']);
         $attributeGroups = $this->helper->getDestinationRecords('eav_attribute_group', ['attribute_group_id']);
-        $attributeSetGroups = [];
-        foreach ($attributeGroups as $attributeGroup) {
-            if ($attributeGroup['attribute_group_code'] == $attributeGroupCode) {
-                $attributeSetGroups[$attributeGroup['attribute_set_id']][$attributeGroupCode] =
-                    $attributeGroup['attribute_group_id'];
-            }
-        }
+        $attributeSets = $this->helper->getDestinationRecords('eav_attribute_set', ['attribute_set_id']);
+        $attributeSetGroupsFound = [];
         $attribute = null;
+        $destinationDocument = $this->destination->getDocument(
+            $this->map->getDocumentMap('eav_entity_attribute', MapInterface::TYPE_SOURCE)
+        );
         foreach ($recordsToSave as $record) {
             $attributeId = $record->getValue('attribute_id');
             $entityTypeId = $record->getValue('entity_type_id');
-            if (!isset($attributes[$attributeId])
-                || $entityTypeId != $productEntityType['entity_type_id']
+            if (isset($attributes[$attributeId])
+                && $attributes[$attributeId]['attribute_code'] == $attributeCode
+                && $entityTypeId == $productEntityTypeId
             ) {
-                continue;
-            }
-            if ($attributes[$attributeId]['attribute_code'] == $attributeCode) {
-                $attributeSetGroups[$record->getValue('attribute_set_id')][$attributeCode] =
+                $attributeSetGroupsFound[$record->getValue('attribute_set_id')] =
                     $record->getValue('attribute_group_id');
                 $attribute = $record->getData();
             }
         }
-        $destinationDocument = $this->destination->getDocument(
-            $this->map->getDocumentMap('eav_entity_attribute', MapInterface::TYPE_SOURCE)
-        );
-        foreach ($attributeSetGroups as $attributeSetId => $attributeSetGroup) {
-            if (!isset($attributeSetGroup[$attributeCode])) {
-                $attribute['attribute_set_id'] = $attributeSetId;
-                $attribute['attribute_group_id'] = $attributeSetGroup[$attributeGroupCode];
+        if ($attribute === null) {
+            return $recordsToSave;
+        }
+        foreach ($attributeGroups as $attributeGroup) {
+            if ($attributeGroup['attribute_group_code'] == $attributeGroupCode
+                && $attributeSets[$attributeGroup['attribute_set_id']]['entity_type_id'] == $productEntityTypeId
+                && !isset($attributeSetGroupsFound[$attributeGroup['attribute_set_id']])
+            ) {
+                $attribute['attribute_set_id'] = $attributeGroup['attribute_set_id'];
+                $attribute['attribute_group_id'] = $attributeGroup['attribute_group_id'];
                 $attribute['entity_attribute_id'] = null;
                 $destinationRecord = $this->factory->create(
                     [
@@ -589,7 +620,6 @@ class Data implements StageInterface, RollbackInterface
                 $recordsToSave->addRecord($destinationRecord);
             }
         }
-
         return $recordsToSave;
     }
 
@@ -658,6 +688,87 @@ class Data implements StageInterface, RollbackInterface
     }
 
     /**
+     * There are attributes from destination customer attribute set
+     * that do not exit in source customer attribute set.
+     * The method adds the lacking attributes
+     *
+     * @param Record\Collection $recordsToSave
+     * @return Record\Collection
+     */
+    private function addLackingAttributesToCustomerAttributeSet($recordsToSave)
+    {
+        $entityAttributeDocument = $this->destination->getDocument(
+            $this->map->getDocumentMap('eav_entity_attribute', MapInterface::TYPE_SOURCE)
+        );
+        $customerEntityType
+            = $this->helper->getSourceRecords('eav_entity_type', ['entity_type_code'])['customer'];
+        $customerEntityTypeId = $customerEntityType['entity_type_id'];
+        $attributeGroups = $this->helper->getDestinationRecords('eav_attribute_group', ['attribute_group_id']);
+        $attributeSets = $this->helper->getDestinationRecords('eav_attribute_set', ['attribute_set_id']);
+        $attributeSetNameCustomerSource = 'Migration_Default';
+        $attributeSetNameCustomerDestination = 'Default';
+        $attributeSetIdOfCustomerSource = null;
+        $attributeSetIdOfCustomerDestination = null;
+        $eavEntityAttributeOfCustomerSource = [];
+        $eavEntityAttributeOfCustomerDestination = [];
+        $attributeGroupIfOfCustomerSource = null;
+
+        foreach ($attributeSets as $attributeSet) {
+            if ($attributeSet['entity_type_id'] == $customerEntityTypeId
+                && $attributeSet['attribute_set_name'] == $attributeSetNameCustomerSource
+            ) {
+                $attributeSetIdOfCustomerSource = $attributeSet['attribute_set_id'];
+            } elseif ($attributeSet['entity_type_id'] == $customerEntityTypeId
+                && $attributeSet['attribute_set_name'] == $attributeSetNameCustomerDestination
+            ) {
+                $attributeSetIdOfCustomerDestination = $attributeSet['attribute_set_id'];
+            }
+        }
+        foreach ($attributeGroups as $attributeGroup) {
+            if ($attributeGroup['attribute_set_id'] == $attributeSetIdOfCustomerSource) {
+                $attributeGroupIfOfCustomerSource = $attributeGroup['attribute_group_id'];
+            }
+        }
+        if ($attributeSetIdOfCustomerSource === null
+            || $attributeSetIdOfCustomerDestination === null
+            || $attributeGroupIfOfCustomerSource === null
+        ) {
+            return $recordsToSave;
+        }
+
+        foreach ($recordsToSave as $record) {
+            $attributeId = $record->getValue('attribute_id');
+            $attributeSetId = $record->getValue('attribute_set_id');
+            if ($attributeSetId == $attributeSetIdOfCustomerSource) {
+                $eavEntityAttributeOfCustomerSource[] = $attributeId;
+            } else if ($attributeSetId == $attributeSetIdOfCustomerDestination) {
+                $eavEntityAttributeOfCustomerDestination[] = $attributeId;
+            }
+        }
+        $customerAttributeIdsToAdd = array_diff(
+            $eavEntityAttributeOfCustomerDestination,
+            $eavEntityAttributeOfCustomerSource
+        );
+        foreach ($customerAttributeIdsToAdd as $customerAttributeId) {
+            $dataRecord = [
+                'entity_attribute_id' => null,
+                'entity_type_id' => $customerEntityTypeId,
+                'attribute_set_id' => $attributeSetIdOfCustomerSource,
+                'attribute_group_id' => $attributeGroupIfOfCustomerSource,
+                'attribute_id' => $customerAttributeId,
+                'sort_order' => 50,
+            ];
+            $destinationRecord = $this->factory->create([
+                'document' => $entityAttributeDocument,
+                'data' => $dataRecord
+            ]);
+            $recordsToSave->addRecord($destinationRecord);
+        }
+
+        return $recordsToSave;
+    }
+
+    /**
      * Migrate tables extended from eav_attribute
      *
      * @return void
@@ -674,7 +785,9 @@ class Data implements StageInterface, RollbackInterface
             $this->destination->backupDocument($destinationDocument->getName());
             $destinationRecords = $this->helper->getDestinationRecords($documentName, [$mappingField]);
             $recordsToSave = $destinationDocument->getRecords();
-            foreach ($this->helper->getSourceRecords($documentName) as $recordData) {
+            $sourceRecords = $this->ignoredAttributes
+                ->clearIgnoredAttributes($this->helper->getSourceRecords($documentName));
+            foreach ($sourceRecords as $recordData) {
                 /** @var Record $sourceRecord */
                 $sourceRecord = $this->factory->create(['document' => $sourceDocument, 'data' => $recordData]);
                 /** @var Record $destinationRecord */
@@ -686,7 +799,7 @@ class Data implements StageInterface, RollbackInterface
                     $destinationRecordData = $destinationRecords[$mappedId];
                     unset($destinationRecords[$mappedId]);
                 } else {
-                    $destinationRecordData = array_fill_keys($destinationRecord->getFields(), null);
+                    $destinationRecordData = $destinationRecord->getDataDefault();
                 }
                 $destinationRecord->setData($destinationRecordData);
                 $this->helper->getRecordTransformer($sourceDocument, $destinationDocument)
