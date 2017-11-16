@@ -1,3 +1,37 @@
+2.2.1
+=============
+* Broken serialized data does not stop migration
+* Enhancement in supporting PHP 7.1
+* Added support for versions:
+
+   * Magento Open Source: 1.9.3.7, 2.2.1
+   * Magento Commerce: 1.14.3.7, 2.2.1
+
+* Fixed bugs:
+
+   * Url suffix for products and categories was without dot after migration
+   * Redirect loop on Admin Login page if cookie domain was set in store configuration
+   * Some serialized settings were not converted into json in Magento Open Source
+   * Store step did not support auto resolve function
+   * `Array to string conversion error` when product in order did not have options
+   * [Issue #400](https://github.com/magento/data-migration-tool/issues/400): Return `$temporaryTable` property to protected visibility
+
+2.2.0
+=============
+* Integrity check errors can be ignored with a new `-a|--auto` CLI argument
+* Customer step was rewritten to be more clear
+* Added support for mapping functionality into Stores step
+* Added possibility of using secure connection to MySQL
+* Added support for PHPUnit 6
+* Added support for versions:
+
+   * Magento Open Source: 2.2.0
+   * Magento Commerce: 2.2.0
+
+* Fixed bugs:
+
+   * An error on EAV step when records from the `eav_entity_attribute` table have references to non-existent records from the `eav_attribute_set` table
+
 2.1.9
 =============
 * Added support for versions:

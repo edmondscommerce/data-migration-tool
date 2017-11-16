@@ -9,7 +9,7 @@ namespace Migration\Step\DataIntegrity;
  * Class IntegrityTest
  * @dbFixture data_integrity
  */
-class IntegrityTest extends \PHPUnit_Framework_TestCase
+class IntegrityTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Migration\Config|\PHPUnit_Framework_MockObject_MockObject
@@ -49,13 +49,13 @@ class IntegrityTest extends \PHPUnit_Framework_TestCase
         $helper = \Migration\TestFramework\Helper::getInstance();
         $objectManager = $helper->getObjectManager();
 
-        $this->config = $objectManager->get('\Migration\Config')
+        $this->config = $objectManager->get(\Migration\Config::class)
             ->init(dirname(__DIR__) . '/../_files/' . $helper->getFixturePrefix() . 'config.xml');
-        $this->logger = $objectManager->create('Migration\Logger\Logger');
-        $this->progress = $objectManager->create('Migration\App\ProgressBar\LogLevelProcessor');
-        $this->source = $objectManager->create('Migration\ResourceModel\Source');
+        $this->logger = $objectManager->create(\Migration\Logger\Logger::class);
+        $this->progress = $objectManager->create(\Migration\App\ProgressBar\LogLevelProcessor::class);
+        $this->source = $objectManager->create(\Migration\ResourceModel\Source::class);
         $this->checkerFactory = $objectManager->create(
-            'Migration\Step\DataIntegrity\Model\OrphanRecordsCheckerFactory'
+            \Migration\Step\DataIntegrity\Model\OrphanRecordsCheckerFactory::class
         );
 
         $this->dataIntegrity = $this->getMockBuilder(Integrity::class)
@@ -63,7 +63,7 @@ class IntegrityTest extends \PHPUnit_Framework_TestCase
             ->setMethods(['getDocumentList'])
             ->getMock();
         $this->setProperties($this->dataIntegrity, [
-            'config' => $this->config,
+            'configReader' => $this->config,
             'logger' => $this->logger,
             'progress' => $this->progress,
             'source' => $this->source,
@@ -84,7 +84,7 @@ class IntegrityTest extends \PHPUnit_Framework_TestCase
             ->expects($this->any())
             ->method('getDocumentList')
             ->willReturn($documents);
-
+        \Migration\Logger\Logger::clearMessages();
         $this->assertEquals($result, $this->dataIntegrity->perform());
         $this->assertEquals($messages, \Migration\Logger\Logger::getMessages());
     }
