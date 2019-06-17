@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\SalesIncrement;
@@ -10,6 +10,9 @@ use Migration\Logger\Logger;
 use Migration\ResourceModel;
 use Migration\App\ProgressBar;
 
+/**
+ * Class Volume
+ */
 class Volume extends AbstractVolume
 {
     /**
@@ -49,7 +52,7 @@ class Volume extends AbstractVolume
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function perform()
     {
@@ -59,7 +62,10 @@ class Volume extends AbstractVolume
         $adapter = $this->destination->getAdapter()->getSelect()->getAdapter();
         foreach ($this->helper->getEntityTypeTablesMap() as $entityType) {
             foreach ($this->helper->getStoreIds() as $storeId) {
-                $incrementMaxNumber = $this->helper->getMaxIncrementForEntityType($entityType['entity_type_id']);
+                $incrementMaxNumber = $this->helper->getMaxIncrementForEntityType(
+                    $entityType['entity_type_id'],
+                    $storeId
+                );
                 $select = $adapter->select()
                     ->from($this->helper->getTableName($entityType['entity_type_table'], $storeId))
                     ->order("{$entityType['column']} DESC")
@@ -67,8 +73,10 @@ class Volume extends AbstractVolume
                 $lastInsertId = $adapter->fetchOne($select);
                 if ($incrementMaxNumber != $lastInsertId) {
                     $this->errors[] = sprintf(
-                        'Mismatch in last increment id of %s entity',
-                        $entityType['entity_type_code']
+                        'Mismatch in last increment id of %s entity: Source: %s Destination: %s',
+                        $entityType['entity_type_code'],
+                        $incrementMaxNumber,
+                        $lastInsertId
                     );
                     continue 2;
                 }

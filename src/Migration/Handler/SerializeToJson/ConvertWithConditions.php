@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Handler\SerializeToJson;
@@ -71,7 +71,7 @@ class ConvertWithConditions extends AbstractHandler
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function handle(Record $recordToHandle, Record $oppositeRecord)
     {
@@ -79,8 +79,12 @@ class ConvertWithConditions extends AbstractHandler
         $value = $recordToHandle->getValue($this->field);
         if (null !== $value) {
             if ($this->shouldProcessField($recordToHandle->getData()[$this->conditionalField])) {
-                $unserializeData = $this->ignoreBrokenData ? @unserialize($value) : unserialize($value);
-                if (false === $unserializeData) {
+                try {
+                    $unserializedData = unserialize($value);
+                } catch (\Exception $exception) {
+                    if (!$this->ignoreBrokenData) {
+                        throw new \Exception($exception);
+                    }
                     $this->logger->warning(sprintf(
                         'Could not unserialize data of %s.%s with record id %s',
                         $recordToHandle->getDocument()->getName(),
@@ -88,16 +92,17 @@ class ConvertWithConditions extends AbstractHandler
                         $recordToHandle->getValue($this->documentIdFiled->getFiled($recordToHandle->getDocument()))
                     ));
                     $this->logger->warning("\n");
-                } else {
-                    $value = json_encode($unserializeData);
+                    $recordToHandle->setValue($this->field, null);
+                    return;
                 }
+                $value = json_encode($unserializedData);
             }
         }
         $recordToHandle->setValue($this->field, $value);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function validate(Record $record)
     {
@@ -108,6 +113,8 @@ class ConvertWithConditions extends AbstractHandler
     }
 
     /**
+     * Should process field
+     *
      * @param string $valueOfConditionalField
      * @return bool
      */

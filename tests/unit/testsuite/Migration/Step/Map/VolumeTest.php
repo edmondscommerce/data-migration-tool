@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\Map;
@@ -161,7 +161,7 @@ class VolumeTest extends \PHPUnit\Framework\TestCase
             ->willReturn($destinationDocument);
         $this->logger->expects($this->once())->method('addRecord')->with(
             Logger::WARNING,
-            'Mismatch of entities in the document: ' . $dstDocName
+            'Mismatch of entities in the document: ' . $dstDocName . ' Source: 2 Destination: 3'
         );
         $this->helper->expects($this->once())->method('getFieldsUpdateOnDuplicate')->with($dstDocName)
             ->willReturn(false);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 -->
@@ -135,7 +135,7 @@
             </transform>
             <transform>
                 <field>catalog_eav_attribute.apply_to</field>
-                <handler class="\Migration\Handler\EavAttribute\ConvertConfigurableAttribute"/>
+                <handler class="\Migration\Handler\EavAttribute\ApplyTo"/>
             </transform>
             <ignore>
                 <field>catalog_eav_attribute.is_configurable</field>

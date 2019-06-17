@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\UrlRewrite;
@@ -246,7 +246,7 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function perform()
     {
@@ -278,7 +278,7 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
             && empty($this->duplicateIndex)
         ) {
             foreach ($duplicates as $row) {
-                $this->duplicateIndex[$row['request_path']][] = $row;
+                $this->duplicateIndex[strtolower($row['request_path'])][] = $row;
             }
         }
 
@@ -299,6 +299,7 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
             $this->migrateRewrites($records, $destinationRecords);
             $this->destination->saveRecords($destinationDocument->getName(), $destinationRecords);
             $this->destination->saveRecords($destProductCategory->getName(), $destProductCategoryRecords);
+            $this->source->setLastLoadedRecord($sourceDocument->getName(), end($data));
         }
         $this->copyEavData('catalog_category_entity_url_key', 'catalog_category_entity_varchar', 'category');
         $this->copyEavData('catalog_product_entity_url_key', 'catalog_product_entity_varchar', 'product');
@@ -310,6 +311,8 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
     }
 
     /**
+     * Get product category record
+     *
      * @param Document $destProductCategory
      * @param array $row
      * @return \Migration\ResourceModel\Record|null
@@ -328,6 +331,8 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
     }
 
     /**
+     * Get rewrites select
+     *
      * @return \Magento\Framework\DB\Select
      */
     protected function getRewritesSelect()
@@ -343,6 +348,8 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
     }
 
     /**
+     * Migrate rewrites
+     *
      * @param \Migration\ResourceModel\Record\Collection $source
      * @param \Migration\ResourceModel\Record\Collection $destination
      * @return void
@@ -391,9 +398,11 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
                 $destinationRecord->setValue('entity_id', 0);
             }
 
-            if (!empty($this->duplicateIndex[$sourceRecord->getValue('request_path')])) {
+            $normalizedRequestPath = strtolower($sourceRecord->getValue('request_path'));
+            if (!empty($this->duplicateIndex[$normalizedRequestPath])) {
                 $shouldResolve = false;
-                foreach ($this->duplicateIndex[$sourceRecord->getValue('request_path')] as &$duplicate) {
+
+                foreach ($this->duplicateIndex[$normalizedRequestPath] as &$duplicate) {
                     $onStore = $duplicate['store_id'] == $sourceRecord->getValue('store_id');
                     if ($onStore && empty($duplicate['used'])) {
                         $duplicate['used'] = true;
@@ -439,6 +448,8 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
     }
 
     /**
+     * Copy eav data
+     *
      * @param string $sourceName
      * @param string $destinationName
      * @param string $type
@@ -484,7 +495,7 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function integrity()
     {
@@ -524,6 +535,8 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
     }
 
     /**
+     * Process duplicates list
+     *
      * @return bool
      */
     private function processDuplicatesList()
@@ -557,7 +570,7 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function volume()
     {
@@ -586,6 +599,8 @@ class Version11410to2000 extends DatabaseStage implements StageInterface, Rollba
     }
 
     /**
+     * Get duplicates list
+     *
      * @return array
      */
     protected function getDuplicatesList()

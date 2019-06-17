@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Handler\SerializeToJson;
@@ -93,6 +93,9 @@ class ConvertWithConditionsTest extends \PHPUnit\Framework\TestCase
         $handler->handle($this->model, $this->model);
     }
 
+    /**
+     * @return array
+     */
     public function convertDataProvider()
     {
         $data = ['product' => '2', 'form_key' => '2SYziDL1rBficzaP'];
@@ -116,7 +119,7 @@ class ConvertWithConditionsTest extends \PHPUnit\Framework\TestCase
                 '/(parameters)|(info_buyRequest)|(bundle_option_ids)|(bundle_selection_attributes)/',
                 true,
                 'brokenString',
-                'brokenString'
+                null
             ],
         ];
     }

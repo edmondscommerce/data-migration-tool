@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Handler\Gallery;
@@ -26,6 +26,11 @@ class SetEntityId extends AbstractHandler
     protected $valueIdField = 'value_id';
 
     /**
+     * @var string
+     */
+    protected $entityIdField = 'entity_id';
+
+    /**
      * @var Source
      */
     protected $source;
@@ -39,7 +44,7 @@ class SetEntityId extends AbstractHandler
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function handle(Record $recordToHandle, Record $oppositeRecord)
     {
@@ -49,6 +54,8 @@ class SetEntityId extends AbstractHandler
     }
 
     /**
+     * Get entity id
+     *
      * @param int $valueId
      * @return int
      */
@@ -59,7 +66,7 @@ class SetEntityId extends AbstractHandler
         $query = $adapter->getSelect()
             ->from(
                 ['mg' => $this->source->addDocumentPrefix($this->mediaGalleryDocument)],
-                [$this->field]
+                [$this->entityIdField]
             )->where("mg.{$this->valueIdField} = ?", $valueId);
         return (int) $query->getAdapter()->fetchOne($query);
     }

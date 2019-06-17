@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\SalesOrder;
@@ -78,7 +78,7 @@ class Volume extends AbstractVolume
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function perform()
     {
@@ -98,6 +98,8 @@ class Volume extends AbstractVolume
     }
 
     /**
+     * Check map entities
+     *
      * @param string $sourceDocName
      * @param string $destinationName
      * @return void
@@ -108,13 +110,17 @@ class Volume extends AbstractVolume
         $destinationCount = $this->destination->getRecordsCount($destinationName);
         if ($sourceCount != $destinationCount) {
             $this->errors[] = sprintf(
-                'Mismatch of entities in the document: %s',
-                $destinationName
+                'Mismatch of entities in the document: %s Source: %s Destination: %s',
+                $destinationName,
+                $sourceCount,
+                $destinationCount
             );
         }
     }
 
     /**
+     * Check eav entities
+     *
      * @return void
      */
     protected function checkEavEntities()

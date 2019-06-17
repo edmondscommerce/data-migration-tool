@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\Settings;
@@ -29,6 +29,17 @@ class Data implements StageInterface
     const CONFIG_FIELD_SCOPE = 'scope';
     const CONFIG_FIELD_PATH = 'path';
     const CONFIG_FIELD_VALUE = 'value';
+
+    /**
+     * @var array
+     */
+    protected $configTableSchema = [
+        self::CONFIG_FIELD_CONFIG_ID,
+        self::CONFIG_FIELD_SCOPE,
+        self::CONFIG_FIELD_SCOPE_ID,
+        self::CONFIG_FIELD_PATH,
+        self::CONFIG_FIELD_VALUE
+    ];
 
     /**
      * @var Destination
@@ -93,7 +104,7 @@ class Data implements StageInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function perform()
     {
@@ -113,6 +124,7 @@ class Data implements StageInterface
         );
         foreach ($sourceRecords as $sourceRecord) {
             $this->progress->advance();
+            $sourceRecord = array_intersect_key($sourceRecord, array_flip($this->configTableSchema));
             if (!$this->readerSettings->isNodeIgnored($sourceRecord[self::CONFIG_FIELD_PATH])) {
                 $sourceRecordPathMapped = $this->readerSettings->getNodeMap($sourceRecord[self::CONFIG_FIELD_PATH]);
                 foreach ($destinationRecords as &$destinationRecord) {
@@ -140,6 +152,8 @@ class Data implements StageInterface
     }
 
     /**
+     * Apply handler
+     *
      * @param Document $document
      * @param array $sourceData
      * @param array $destinationData
@@ -162,6 +176,8 @@ class Data implements StageInterface
     }
 
     /**
+     * Get handler
+     *
      * @param string $path
      * @return bool|Handler\HandlerInterface|null
      * @throws \Migration\Exception

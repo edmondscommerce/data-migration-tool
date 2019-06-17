@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\Log;
@@ -100,7 +100,7 @@ class Data implements StageInterface
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function perform()
     {
@@ -135,8 +135,8 @@ class Data implements StageInterface
                     $destinationRecords->addRecord($destRecord);
                 }
                 $this->destination->saveRecords($destinationName, $destinationRecords);
+                $this->progress->advance(LogManager::LOG_LEVEL_INFO);
             }
-            $this->progress->advance(LogManager::LOG_LEVEL_INFO);
             $this->progress->finish(LogManager::LOG_LEVEL_DEBUG);
         }
         $this->clearLog(array_keys($this->readerGroups->getGroup('destination_documents_to_clear')));
@@ -145,6 +145,8 @@ class Data implements StageInterface
     }
 
     /**
+     * Get records
+     *
      * @param string $sourceDocumentName
      * @param \Magento\Framework\DB\Select $select
      * @param int $pageNumber
@@ -161,6 +163,8 @@ class Data implements StageInterface
     }
 
     /**
+     * Get log data select
+     *
      * @return \Magento\Framework\DB\Select
      */
     public function getLogDataSelect()
@@ -187,6 +191,8 @@ class Data implements StageInterface
     }
 
     /**
+     * Clear log
+     *
      * @param array $documents
      * @return void
      */

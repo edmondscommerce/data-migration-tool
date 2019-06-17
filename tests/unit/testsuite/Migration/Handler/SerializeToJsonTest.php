@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -36,11 +36,14 @@ class SerializeToJsonTest extends \PHPUnit\Framework\TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $handler = new SerializeToJson($logger, $documentIdField);
+        $handler = new SerializeToJson($logger, $documentIdField, true, false);
         $handler->setField($fieldName);
         $this->assertNull($handler->handle($record, $record2));
     }
 
+    /**
+     * @return array
+     */
     public function handleDataProvider()
     {
         $array = ['some_field' => 'value'];

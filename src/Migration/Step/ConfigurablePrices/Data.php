@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\ConfigurablePrices;
@@ -89,7 +89,7 @@ class Data implements StageInterface
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function perform()
     {
@@ -124,6 +124,8 @@ class Data implements StageInterface
     }
 
     /**
+     * Get iterations count
+     *
      * @return int
      */
     protected function getIterationsCount()
@@ -135,6 +137,8 @@ class Data implements StageInterface
     }
 
     /**
+     * Get records
+     *
      * @param string $sourceDocumentName
      * @param \Magento\Framework\DB\Select $select
      * @param int $pageNumber
@@ -150,6 +154,8 @@ class Data implements StageInterface
     }
 
     /**
+     * Get configurable price
+     *
      * @return \Magento\Framework\DB\Select
      */
     protected function getConfigurablePrice()
@@ -163,7 +169,7 @@ class Data implements StageInterface
         );
         $priceExpr = new \Zend_Db_Expr(
             'IF(sup_ap.is_percent = 1, TRUNCATE(mt.value + (mt.value * sup_ap.pricing_value/100), 4), ' .
-            ' mt.value + sup_ap.pricing_value)'
+            ' mt.value + SUM(sup_ap.pricing_value))'
         );
         $fields = [
             'value' => $priceExpr,
@@ -180,7 +186,7 @@ class Data implements StageInterface
             ->joinInner(
                 ['sup_ap' => $this->source->addDocumentPrefix('catalog_product_super_attribute_pricing')],
                 'sup_ap.product_super_attribute_id = sup_a.product_super_attribute_id',
-                ['store_id' => 'website_id']
+                []
             )
             ->joinInner(
                 ['supl' => $this->source->addDocumentPrefix('catalog_product_super_link')],
@@ -190,16 +196,24 @@ class Data implements StageInterface
             ->joinInner(
                 ['pint' => $this->source->addDocumentPrefix('catalog_product_entity_int')],
                 'pint.entity_id = supl.product_id and pint.attribute_id = sup_a.attribute_id ' .
-                ' and pint.value = sup_ap.value_index and pint.store_id = sup_ap.website_id',
+                ' and pint.value = sup_ap.value_index',
                 []
+            )
+            ->joinInner(
+                ['cs' => $this->source->addDocumentPrefix('core_store')],
+                'cs.website_id = sup_ap.website_id',
+                ['store_id']
             )
             ->where('mt.entity_id in (?)', $entitiesExpr)
             ->where('mt.attribute_id = ?', $priceAttributeId)
+            ->group([$entityIdName, 'cs.store_id']);
         ;
         return $select;
     }
 
     /**
+     * Get price attribute id
+     *
      * @return string
      */
     protected function getPriceAttributeId()

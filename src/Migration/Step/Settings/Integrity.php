@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\Settings;
@@ -68,7 +68,7 @@ class Integrity extends \Migration\App\Step\AbstractIntegrity
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function perform()
     {
@@ -82,6 +82,7 @@ class Integrity extends \Migration\App\Step\AbstractIntegrity
                     self::CONFIG_TABLE_NAME_SOURCE
                 )
             );
+            $this->logger->notice('Please check if table names uses prefix, add it to your config.xml file');
             return false;
         }
         $documents = $this->destination->getDocumentList();
@@ -92,6 +93,7 @@ class Integrity extends \Migration\App\Step\AbstractIntegrity
                     self::CONFIG_TABLE_NAME_DESTINATION
                 )
             );
+            $this->logger->notice('Please check if table names uses prefix, add it to your config.xml file');
             return false;
         }
         $this->progress->finish();
@@ -99,7 +101,7 @@ class Integrity extends \Migration\App\Step\AbstractIntegrity
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function getIterationsCount()
     {

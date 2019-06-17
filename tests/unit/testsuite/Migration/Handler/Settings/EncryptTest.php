@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Handler\Settings;
@@ -107,7 +107,7 @@ class EncryptTest extends \PHPUnit\Framework\TestCase
             ->with($decryptedValue)
             ->willReturn($newValue);
 
-        $handler = new \Migration\Handler\Settings\Encrypt($this->encryptor, $this->cryptFactory, $this->configReader);
+        $handler = new \Migration\Handler\Encrypt($this->encryptor, $this->cryptFactory, $this->configReader);
         $handler->setField($fieldName);
         $handler->handle($recordToHandle, $oppositeRecord);
     }

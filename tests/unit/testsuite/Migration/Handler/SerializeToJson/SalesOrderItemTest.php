@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Handler\SerializeToJson;
@@ -40,6 +40,9 @@ class SalesOrderItemTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($handler->handle($record, $record2));
     }
 
+    /**
+     * @return array
+     */
     public function handleDataProvider()
     {
         // @codingStandardsIgnoreStart

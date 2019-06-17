@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Handler\EavAttributeGroup;
@@ -23,7 +23,7 @@ class SetGroupCode extends \Migration\Handler\AbstractHandler implements \Migrat
      *
      * @var bool
      */
-    protected $canStart;
+    private $canStart;
 
     /**
      * @var AttributeGroupNameToCodeMap
@@ -31,18 +31,25 @@ class SetGroupCode extends \Migration\Handler\AbstractHandler implements \Migrat
     private $groupNameToCodeMap;
 
     /**
+     * @var Source
+     */
+    private $source;
+
+    /**
      * @param Config $config
      * @param AttributeGroupNameToCodeMap $groupNameToCodeMap
+     * @param Source $source
      * @throws Exception
      */
-    public function __construct(Config $config, AttributeGroupNameToCodeMap $groupNameToCodeMap)
+    public function __construct(Config $config, AttributeGroupNameToCodeMap $groupNameToCodeMap, Source $source)
     {
         $this->groupNameToCodeMap = $groupNameToCodeMap;
         $this->canStart = $config->getSource()['type'] == DatabaseStage::SOURCE_TYPE;
+        $this->source = $source;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function handle(Record $recordToHandle, Record $oppositeRecord)
     {
@@ -50,7 +57,32 @@ class SetGroupCode extends \Migration\Handler\AbstractHandler implements \Migrat
             return;
         }
         $this->validate($recordToHandle);
-        $groupCode = $this->groupNameToCodeMap->getGroupCodeMap($recordToHandle->getValue('attribute_group_name'));
+        $entityType = $this->determineEntityType($recordToHandle->getValue('attribute_set_id'));
+        $groupCode = $this->groupNameToCodeMap->getGroupCodeMap(
+            $recordToHandle->getValue('attribute_group_name'),
+            $entityType
+        );
         $recordToHandle->setValue($this->field, $groupCode);
+    }
+
+    /**
+     * Find entity type by attribute set ID
+     *
+     * @param string $attributeSetId
+     * @return string
+     */
+    private function determineEntityType($attributeSetId)
+    {
+        /** @var Mysql $adapter */
+        $adapter = $this->source->getAdapter();
+        $select = $adapter->getSelect()->from(
+            ['eas' => $this->source->addDocumentPrefix('eav_attribute_set')],
+            []
+        )->join(
+            ['eet' => $this->source->addDocumentPrefix('eav_entity_type')],
+            'eas.entity_type_id = eet.entity_type_id',
+            ['entity_type_code']
+        )->where('eas.attribute_set_id = ?', $attributeSetId);
+        return $select->getAdapter()->fetchOne($select);
     }
 }

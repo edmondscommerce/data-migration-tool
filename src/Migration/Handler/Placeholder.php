@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Handler;
@@ -27,7 +27,7 @@ class Placeholder extends AbstractHandler implements HandlerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function handle(Record $recordToHandle, Record $oppositeRecord)
     {
@@ -67,6 +67,8 @@ class Placeholder extends AbstractHandler implements HandlerInterface
         $content = str_replace($classSource, $classDestination, $content);
         // cut off name of a module from template path
         $content = preg_replace('/({{widget|{{block)(.*template=")(.*\/)(.*".*}})/mU', '$1$2$4', $content);
+        // remove all unknown widgets
+        $content = preg_replace('/{{widget type="[\w\-_]+\/[\w\-_]+".+}}/mU', '', $content);
         return $content;
     }
 }

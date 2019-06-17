@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\ConfigurablePrices;
@@ -11,6 +11,9 @@ use Migration\Reader\MapInterface;
 use Migration\ResourceModel;
 use Migration\App\ProgressBar;
 
+/**
+ * Class Volume
+ */
 class Volume extends AbstractVolume
 {
     /**
@@ -57,18 +60,11 @@ class Volume extends AbstractVolume
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function perform()
     {
-        $documents = $this->helper->getDocumentList();
         $this->progressBar->start(1);
-        $oldDestinationRecordsCount = $this->helper->getDestinationRecordsCount();
-        $newDestinationRecordsCount = $this->destination->getRecordsCount($documents[MapInterface::TYPE_DEST])
-            - $oldDestinationRecordsCount;
-        if ($newDestinationRecordsCount != 0) {
-            $this->errors[] = 'Mismatch of entities in the document: ' . $documents[MapInterface::TYPE_DEST];
-        }
         $this->progressBar->finish();
         return $this->checkForErrors(Logger::ERROR);
     }

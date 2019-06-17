@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 -->
@@ -81,6 +81,11 @@
             <data>Migration\Step\SalesIncrement\Data</data>
             <volume>Migration\Step\SalesIncrement\Volume</volume>
         </step>
+        <step title="Inventory Step">
+            <integrity>Migration\Step\Inventory\Integrity</integrity>
+            <data>Migration\Step\Inventory\Data</data>
+            <volume>Migration\Step\Inventory\Volume</volume>
+        </step>
         <step title="VisualMerchandiser Step">
             <integrity>Migration\Step\VisualMerchandiser\Integrity</integrity>
             <data>Migration\Step\VisualMerchandiser\Data</data>
@@ -119,12 +124,16 @@
             <delta>Migration\Step\SalesIncrement\Delta</delta>
             <volume>Migration\Step\SalesIncrement\Volume</volume>
         </step>
+        <step title="Inventory Step">
+            <delta>Migration\Step\Inventory\Delta</delta>
+            <volume>Migration\Step\Inventory\Volume</volume>
+        </step>
     </steps>
     <source>
-        <database host="localhost" name="magento1" user="root"/>
+        <database host="localhost" name="magento1" user="root" />
     </source>
     <destination>
-        <database host="localhost" name="magento2" user="root"/>
+        <database host="localhost" name="magento2" user="root" />
     </destination>
     <options>
         <map_file>etc/commerce-to-commerce/1.14.3.2/map.xml.dist</map_file>

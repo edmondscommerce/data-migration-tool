@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Reader;
@@ -84,18 +84,36 @@ class ClassMap
     }
 
     /**
+     * Convert class name
+     *
      * @param string $className
-     * @return mixed
+     * @return null|string
      */
     public function convertClassName($className)
     {
         if (is_string($className) && array_key_exists($className, $this->getMap())) {
             return $this->getMap()[$className];
         }
-        return $className;
+        return '';
     }
 
     /**
+     * Has map
+     *
+     * @param string $className
+     * @return bool
+     */
+    public function hasMap($className)
+    {
+        if (is_string($className) && array_key_exists($className, $this->getMap())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get map
+     *
      * @return array|mixed
      * @throws Exception
      */

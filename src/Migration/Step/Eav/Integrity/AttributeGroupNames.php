@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\Eav\Integrity;
@@ -73,6 +73,8 @@ class AttributeGroupNames
     }
 
     /**
+     * Check for errors
+     *
      * @param array $attributeGroupsOfCatalogProduct
      * @param array $attributeSetsOfCatalogProduct
      * @return array
@@ -80,7 +82,7 @@ class AttributeGroupNames
     protected function checkForErrors(array $attributeGroupsOfCatalogProduct, array $attributeSetsOfCatalogProduct)
     {
         $incompatibleDocumentFieldsData = [];
-        $groupNamesToValidate = array_keys($this->groupNameToCodeMap->getMap());
+        $groupNamesToValidate = array_keys($this->groupNameToCodeMap->getMap('catalog_product'));
         foreach ($attributeGroupsOfCatalogProduct as $attributeSetId => $groupNames) {
             if (!empty(array_diff($groupNamesToValidate, $groupNames))) {
                 $error = 'The product attribute set "%s" does not contain all required attribute group names "%s"';

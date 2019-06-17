@@ -1,3 +1,118 @@
+2.3.1
+=============
+* Added support for versions:
+
+   * Magento Open Source: 2.3.1, 1.9.4.1 
+   * Magento Commerce: 2.3.1, 1.14.4.1
+
+* Fixed bugs:
+
+   * Encrypt sensitive data with libsodium
+   * [Issue #607](https://github.com/magento/data-migration-tool/issues/607): SalesIncrement Step showed unclear error message
+   * [Issue #615](https://github.com/magento/data-migration-tool/issues/615): Next generated increment id was based on the highest increment number from all stores after migration
+   * [Issue #574](https://github.com/magento/data-migration-tool/issues/574): Required price field appeared on migrated Grouped products
+   * [Issue #235](https://github.com/magento/data-migration-tool/issues/235): EAV step did not revert tables of M2 in case of error
+   * [Issue #461](https://github.com/magento/data-migration-tool/issues/461): Virtual classes in Magento 2 caused error on migrating EAV data
+   * [Issue #632](https://github.com/magento/data-migration-tool/issues/632): Error when serialized value had false type
+   * [Issue #651](https://github.com/magento/data-migration-tool/issues/651): The Data Migration Tool did not notify user when Magento DB uses prefix in tables name
+
+2.3.0
+=============
+* Added support for versions:
+
+   * Magento Open Source: 1.9.4.0, 2.3.0
+   * Magento Commerce: 1.14.4.0, 2.3.0
+
+* Fixed bugs:
+
+   * [Issue #595](https://github.com/magento/data-migration-tool/issues/595): Fields from third-party extensions cause error during migration with `-auto` option
+   * [Issue #596](https://github.com/magento/data-migration-tool/issues/596): Error during migration when parent product id is not found in `catalog_product_bundle_option` table
+   * [Issue #609](https://github.com/magento/data-migration-tool/issues/609): `Array to string conversion` exception when running Deltas of Sales Order Grid
+   * [Issue #201](https://github.com/magento/data-migration-tool/issues/201): Error during migration when there are several attribute sets in Magento 2  
+
+2.2.6
+=============
+* Added support for versions:
+
+   * Magento Open Source: 1.9.3.10, 2.2.6
+   * Magento Commerce: 1.14.3.10, 2.2.6
+
+* Fixed bugs:
+
+   * Duplicate `amazon_customer` record in `map.xml` file
+   * [Issue #557](https://github.com/magento/data-migration-tool/issues/557): `map-tier-pricing.xml.dist` references were incorrect
+   * [Issue #545](https://github.com/magento/data-migration-tool/issues/545): PayPal standard settings for active/sandbox mode was not carried across
+   * [Issue #554](https://github.com/magento/data-migration-tool/issues/554): Duplicate `ignore` mappings found in EE-to-EE platform
+   * [Issue #555](https://github.com/magento/data-migration-tool/issues/555): Duplicate `ignore` mappings found in CE-to-EE platform
+   * [Issue #556](https://github.com/magento/data-migration-tool/issues/556): Duplicate `ignore` mappings found in CE-to-CE platform
+   * [Issue #561](https://github.com/magento/data-migration-tool/issues/561): Incorrect migration of records when value must be moved to a different destination field
+   * [Issue #578](https://github.com/magento/data-migration-tool/issues/578): Attributes with dash in attribute codes gave error
+
+2.2.5
+=============
+* Added support for versions:
+
+   * Magento Open Source: 1.9.3.9, 2.2.5
+   * Magento Commerce: 1.14.3.9, 2.2.5
+
+* Fixed bugs:
+
+   * New table `tablevertex_order_invoice_status` caused error during migration
+   * Image excluding and sort order did not migrate properly on Magento Commerce
+   * [Issue #514](https://github.com/magento/data-migration-tool/issues/514): `base_grand_total` field was not migrated in invoice grid table
+   * [Issue #534](https://github.com/magento/data-migration-tool/issues/534): The migration step Log did not update the progress bar with large data
+   * [Issue #535](https://github.com/magento/data-migration-tool/issues/535): B2B destination tables caused errors during migration for Commerce Edition
+   * [Issue #536](https://github.com/magento/data-migration-tool/issues/536): Prohibited tabs and format XML files in code of the project
+   * [Issue #537](https://github.com/magento/data-migration-tool/issues/537): Comments to the function declaration were missed
+   * [Issue #532](https://github.com/magento/data-migration-tool/issues/532): Serialization was used instead of json format for lock file
+   * [Issue #533](https://github.com/magento/data-migration-tool/issues/533): Duplicate node was used in mapping files
+
+2.2.4
+=============
+* Added support for versions:
+
+   * Magento Open Source: 2.2.4
+   * Magento Commerce: 2.2.4
+
+* Fixed bugs:
+
+   * New tables `email_abandoned_cart` and `temando_rma_shipment` caused error during migration
+   * [Issue #481](https://github.com/magento/data-migration-tool/issues/481): Url rewrite suffix contained only dot symbol
+   * [Issue #487](https://github.com/magento/data-migration-tool/issues/487): Important tables were missing in `deltalog.xml.dist`
+
+2.2.3
+=============
+* Added support for versions:
+
+   * Magento Open Source: 1.9.3.8, 2.2.3
+   * Magento Commerce: 1.14.3.8, 2.2.3
+
+* Fixed bugs:
+
+   * Dotmailer Marketing and Temando tables caused errors during migration
+   * `Duplicate entry` error on customer_group table when bulk_size was set to 1
+   * Error during migration when min cart qty was not serialized
+   * CMS pages content was not filtered from 3rd party customizations
+   * Prices that were setup per website scope for Configurable products were not migrated properly
+   * [Issue #433](https://github.com/magento/data-migration-tool/issues/433): Enterprise gift card accounts did not work in delta mode
+   * [Issue #411](https://github.com/magento/data-migration-tool/issues/411): CMS Pages caused errors if contained XML layout code
+   * [Issue #445](https://github.com/magento/data-migration-tool/issues/445): Not able to migrate attribute group names if contain non-latin characters 
+   * [Issue #454](https://github.com/magento/data-migration-tool/issues/454): Volume check errors were not detailed
+
+2.2.2
+=============
+* Added support for versions:
+
+   * Magento Open Source: 2.2.2
+   * Magento Commerce: 2.2.2
+
+* Fixed bugs:
+
+   * Customer Attribute step did not remember its position
+   * Wrong value for `eav_attribute_group.attribute_group_code` field was set for non-product entities
+   * [Issue #355](https://github.com/magento/data-migration-tool/issues/355): Data integrity check errors did not indicate the source of the error
+   * [Issue #378](https://github.com/magento/data-migration-tool/issues/378): Settings step threw an error when additional fields from an extension were added to the `core_config_data` database table
+
 2.2.1
 =============
 * Broken serialized data does not stop migration
@@ -186,9 +301,9 @@
     * Magento EE version 1.14.2.3, 2.0.2
 
 * Fixed bugs:
-    *	Fixed an issue with migrating passwords
-    *   [Issue#48](https://github.com/magento/data-migration-tool-ce/issues/48) We no longer migrate backup tables
-    *   [Issue#15](https://github.com/magento/data-migration-tool-ce/issues/15) Improved error reporting for migrating URL rewrites
-    *   [Issue#46](https://github.com/magento/data-migration-tool-ce/issues/46) Improved URL rewrite validation
-    *   [Issue#33](https://github.com/magento/data-migration-tool-ce/issues/33) Resolved issue that resulted in the `inet_ntop(): Invalid in_addr value` error
-    *   [Issue#12](https://github.com/magento/data-migration-tool-ce/issues/12) Duplicate entries in the `catalogsearch_query` table are no longer migrated
+    * Fixed an issue with migrating passwords
+    * [Issue#48](https://github.com/magento/data-migration-tool-ce/issues/48) We no longer migrate backup tables
+    * [Issue#15](https://github.com/magento/data-migration-tool-ce/issues/15) Improved error reporting for migrating URL rewrites
+    * [Issue#46](https://github.com/magento/data-migration-tool-ce/issues/46) Improved URL rewrite validation
+    * [Issue#33](https://github.com/magento/data-migration-tool-ce/issues/33) Resolved issue that resulted in the `inet_ntop(): Invalid in_addr value` error
+    * [Issue#12](https://github.com/magento/data-migration-tool-ce/issues/12) Duplicate entries in the `catalogsearch_query` table are no longer migrated

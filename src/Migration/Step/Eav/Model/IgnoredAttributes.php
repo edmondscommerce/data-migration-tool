@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\Eav\Model;
@@ -56,7 +56,9 @@ class IgnoredAttributes
             }
         }
         foreach ($sourceRecords as $attrNum => $sourceAttribute) {
-            if (in_array($sourceAttribute['attribute_id'], $attributesIgnoreIds)) {
+            if (isset($sourceAttribute['attribute_id'])
+                && in_array($sourceAttribute['attribute_id'], $attributesIgnoreIds)
+            ) {
                 unset($sourceRecords[$attrNum]);
             }
         }

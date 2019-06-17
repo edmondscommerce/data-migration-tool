@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\DataIntegrity;
@@ -63,7 +63,7 @@ class Integrity extends DatabaseStage implements StageInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function perform()
     {
@@ -91,6 +91,8 @@ class Integrity extends DatabaseStage implements StageInterface
     }
 
     /**
+     * Get adapter
+     *
      * @return AdapterInterface
      */
     protected function getAdapter()
@@ -99,6 +101,8 @@ class Integrity extends DatabaseStage implements StageInterface
     }
 
     /**
+     * Get document list
+     *
      * @return array
      */
     protected function getDocumentList()
@@ -114,8 +118,10 @@ class Integrity extends DatabaseStage implements StageInterface
      */
     private function buildLogMessage(OrphanRecordsChecker $checker)
     {
+        $message = 'Foreign key (%s) constraint fails on source database.'
+            . ' Orphan records id: %s from `%s`.`%s` has no referenced records in `%s`';
         return sprintf(
-            'Foreign key (%s) constraint fails. Orphan records id: %s from `%s`.`%s` has no referenced records in `%s`',
+            $message,
             $checker->getKeyName(),
             implode(',', $checker->getOrphanRecordsIds()),
             $checker->getChildTable(),

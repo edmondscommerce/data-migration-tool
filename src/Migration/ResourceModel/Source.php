@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -31,7 +31,7 @@ class Source extends AbstractResource
     protected $documentPrefix;
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function getDocumentPrefix()
     {
@@ -72,6 +72,9 @@ class Source extends AbstractResource
             }
             if (isset($this->lastLoadedIdentityId[$documentName])) {
                 $identityId = $this->lastLoadedIdentityId[$documentName];
+                if ($identityId == 0) {
+                    $this->lastLoadedIdentityId[$documentName] = ++$identityId;
+                }
             }
         }
 
@@ -87,20 +90,25 @@ class Source extends AbstractResource
     }
 
     /**
+     * Set last loaded record
+     *
      * @param string $documentName
      * @param array $record
      * @return void
      */
     public function setLastLoadedRecord($documentName, array $record)
     {
-        if ($this->getIdentityField($documentName) && isset($record[$this->getIdentityField($documentName)])) {
-            $this->lastLoadedIdentityId[$documentName] = $record[$this->getIdentityField($documentName)];
+        $identityField = $this->getIdentityField($documentName);
+        if ($identityField && isset($record[$identityField])) {
+            $this->lastLoadedIdentityId[$documentName] = $record[$identityField];
         } elseif (empty($record)) {
             unset($this->lastLoadedIdentityId[$documentName]);
         }
     }
 
     /**
+     * Get identity field
+     *
      * @param string $documentName
      * @return mixed
      */
@@ -178,6 +186,8 @@ class Source extends AbstractResource
     }
 
     /**
+     * Get delta log name
+     *
      * @param string $documentName
      * @return string
      */

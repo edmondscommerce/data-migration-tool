@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\UrlRewrite;
@@ -221,6 +221,7 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
                 $destinationRecords->addRecord($destRecord);
             }
 
+            $this->source->setLastLoadedRecord(self::SOURCE, end($bulk));
             $this->progress->advance();
             $this->destination->saveRecords(self::DESTINATION, $destinationRecords);
             $this->destination->saveRecords(self::DESTINATION_PRODUCT_CATEGORY, $destProductCategoryRecords);
@@ -232,7 +233,7 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function perform()
     {
@@ -322,6 +323,8 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
     }
 
     /**
+     * Do record serialization
+     *
      * @param Record $record
      * @return bool
      */
@@ -331,6 +334,8 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
     }
 
     /**
+     * Get record entity type
+     *
      * @param Record $record
      * @return mixed
      */
@@ -342,6 +347,8 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
     }
 
     /**
+     * Select cms page rewrites
+     *
      * @return \Magento\Framework\Db\Select
      */
     protected function selectCmsPageRewrites()
@@ -373,6 +380,8 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
     }
 
     /**
+     * Save cms page rewrites
+     *
      * @return void
      */
     protected function saveCmsPageRewrites()
@@ -383,6 +392,8 @@ class Version191to2000 extends \Migration\Step\DatabaseStage implements Rollback
     }
 
     /**
+     * Count cms page rewrites
+     *
      * @return int
      */
     protected function countCmsPageRewrites()

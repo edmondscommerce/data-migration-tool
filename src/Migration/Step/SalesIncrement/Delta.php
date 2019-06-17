@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -67,7 +67,7 @@ class Delta extends AbstractDelta
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function transformData($data, $sourceDocument, $destDocument, $recordTransformer, $destinationRecords)
     {
@@ -75,11 +75,14 @@ class Delta extends AbstractDelta
         /** @var \Magento\Framework\DB\Adapter\Pdo\Mysql $adapter */
         $adapter = $this->destination->getAdapter()->getSelect()->getAdapter();
         $entityType = $this->helper->getEntityTypeData('entity_type_id', $data['entity_type_id']);
-        $incrementMaxNumber = $this->helper->getMaxIncrementForEntityType($data['entity_type_id']);
+        $incrementMaxNumber = $this->helper->getMaxIncrementForEntityType(
+            $data['entity_type_id'],
+            $data['store_id']
+        );
         if ($incrementMaxNumber === false || empty($entityType)) {
             return;
         }
-        foreach ($this->helper->getStoreIds() as $storeId) {
+        foreach ($this->helper->getStoreIdsOfStoreGroup($data['store_id']) as $storeId) {
             $tableName = $this->helper->getTableName($entityType['entity_type_table'], $storeId);
             $adapter->insertOnDuplicate($tableName, [$entityType['column'] => $incrementMaxNumber]);
         }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\UrlRewrite\Model;
@@ -82,7 +82,7 @@ class Suffix
                 if ($row['store_path'] !== null) {
                     $suffix = $row['store_value'];
                 }
-                $suffix = $this->ensureSuffixBeginsWithDot($suffix);
+                $suffix = ($suffix) ? $this->ensureSuffixBeginsWithDot($suffix) : $suffix;
                 $this->suffixData[$suffixFor][] = [
                     'store_id' => $row['store_id'],
                     'suffix' => $suffix
@@ -100,7 +100,9 @@ class Suffix
     }
 
     /**
-     * @param $suffix
+     * Ensure suffix begins with dot
+     *
+     * @param mixed $suffix
      * @return string
      */
     private function ensureSuffixBeginsWithDot($suffix)

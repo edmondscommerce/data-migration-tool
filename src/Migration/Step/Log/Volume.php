@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\Log;
@@ -69,7 +69,7 @@ class Volume extends AbstractVolume
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function perform()
     {
@@ -84,7 +84,12 @@ class Volume extends AbstractVolume
             $sourceCount = $this->source->getRecordsCount($sourceDocName);
             $destinationCount = $this->destination->getRecordsCount($destinationName);
             if ($sourceCount != $destinationCount) {
-                $this->errors[] = 'Mismatch of entities in the document: ' . $destinationName;
+                $this->errors[] = sprintf(
+                    'Mismatch of entities in the document: %s Source: %s Destination: %s',
+                    $destinationName,
+                    $sourceCount,
+                    $destinationCount
+                );
             }
         }
         if (!$this->checkCleared(array_keys($this->readerGroups->getGroup('destination_documents_to_clear')))) {
@@ -95,6 +100,8 @@ class Volume extends AbstractVolume
     }
 
     /**
+     * Check cleared
+     *
      * @param array $documents
      * @return bool
      */

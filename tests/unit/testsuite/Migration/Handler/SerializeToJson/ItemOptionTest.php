@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Handler\SerializeToJson;
@@ -63,6 +63,9 @@ class ItemOptionTest extends \PHPUnit\Framework\TestCase
         $handler->handle($this->model, $this->model);
     }
 
+    /**
+     * @return array
+     */
     public function handleDataProvider()
     {
         return [

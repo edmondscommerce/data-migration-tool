@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 
@@ -64,7 +64,7 @@ class FileTest extends \PHPUnit\Framework\TestCase
     public function testGetData()
     {
         $this->filesystemDriver->expects($this->any())->method('isExists')->will($this->returnValue(true));
-        $dataSerialized = 'a:1:{s:6:"object";a:1:{s:9:"integrity";b:1;}}';
+        $dataSerialized = '{"object":{"integrity":true}}';
         $this->filesystemDriver->expects($this->once())->method('fileGetContents')->willReturn($dataSerialized);
         $data = $this->file->getData();
         $this->assertEquals(['object' => ['integrity' => true]], $data);

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace Migration\Step\OrderGrids;
@@ -26,6 +26,8 @@ class Helper
     }
 
     /**
+     * Get select data
+     *
      * @return array
      */
     public function getSelectData()
@@ -40,6 +42,8 @@ class Helper
     }
 
     /**
+     * Get document data
+     *
      * @param string $destinationDocument
      * @return array
      */
@@ -52,6 +56,8 @@ class Helper
     }
 
     /**
+     * Get columns data
+     *
      * @param string $gridName
      * @return array|null
      */
@@ -72,6 +78,8 @@ class Helper
     }
 
     /**
+     * Get sales order columns grid
+     *
      * @return array
      */
     protected function getSalesOrderColumnsGrid()
@@ -128,6 +136,8 @@ class Helper
     }
 
     /**
+     * Get sales invoice columns grid
+     *
      * @return array
      */
     protected function getSalesInvoiceColumnsGrid()
@@ -171,6 +181,7 @@ class Helper
             'subtotal' => 'sales_order.base_subtotal',
             'shipping_and_handling' => 'sales_order.base_shipping_amount',
             'grand_total' => 'sales_invoice.grand_total',
+            'base_grand_total' => 'sales_invoice.base_grand_total',
             'created_at' => 'sales_invoice.created_at',
             'updated_at' => 'sales_invoice.updated_at'
         ];
@@ -181,6 +192,8 @@ class Helper
     }
 
     /**
+     * Get sales shipment columns grid
+     *
      * @return array
      */
     protected function getSalesShipmentColumnsGrid()
@@ -230,6 +243,8 @@ class Helper
     }
 
     /**
+     * Get sales credit memo columns grid
+     *
      * @return array
      */
     protected function getSalesCreditMemoColumnsGrid()
@@ -282,6 +297,8 @@ class Helper
     }
 
     /**
+     * Get document list
+     *
      * @return array
      */
     public function getDocumentList()
@@ -295,6 +312,8 @@ class Helper
     }
 
     /**
+     * Get document columns
+     *
      * @param string $documentName
      * @return array
      */
@@ -305,6 +324,8 @@ class Helper
     }
 
     /**
+     * Get update data
+     *
      * @return array
      */
     public function getUpdateData()

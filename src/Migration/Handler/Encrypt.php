@@ -1,9 +1,9 @@
 <?php
 /**
- * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace Migration\Handler\Settings;
+namespace Migration\Handler;
 
 use Magento\Framework\App\ObjectManager;
 use Migration\ResourceModel\Record;
@@ -40,9 +40,9 @@ class Encrypt extends AbstractHandler
     /**
      * Encrypt constructor.
      *
-     * @param \Magento\Framework\Encryption\Encryptor    $encryptor
+     * @param \Magento\Framework\Encryption\Encryptor $encryptor
      * @param \Magento\Framework\Encryption\CryptFactory $cryptFactory
-     * @param \Migration\Config                          $configReader
+     * @param \Migration\Config $configReader
      */
     public function __construct(
         \Magento\Framework\Encryption\Encryptor $encryptor,
@@ -50,24 +50,23 @@ class Encrypt extends AbstractHandler
         \Migration\Config $configReader
     ) {
         $this->cryptFactory  = $cryptFactory;
-        $this->encryptor     = $encryptor;
-        $this->configReader  = $configReader;
+        $this->encryptor = $encryptor;
+        $this->configReader = $configReader;
 
-        $this->cryptKey      = $this->configReader->getOption(self::CRYPT_KEY);
+        $this->cryptKey = $this->configReader->getOption(self::CRYPT_KEY);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function handle(Record $recordToHandle, Record $oppositeRecord)
     {
-        $value  = $recordToHandle->getValue('value');
-
+        $field = $this->field ?: 'value';
+        $value  = $recordToHandle->getValue($field);
         if (!$value) {
             return;
         }
         $this->validate($recordToHandle);
-
         $parts          = explode(':', $value, 4);
         $partsCount     = count($parts);
         if ($partsCount == 4) {
@@ -88,16 +87,13 @@ class Encrypt extends AbstractHandler
             'mode'       => $mode,
             'initVector' => $initVector,
         ]);
-
         $decryptedValue = trim($crypt->decrypt(base64_decode((string)$encryptedValue)));
-
         $encodedValue = $this->encryptor->encrypt($decryptedValue);
-
-        $recordToHandle->setValue('value', $encodedValue);
+        $recordToHandle->setValue($field, $encodedValue);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function validate(Record $record)
     {
